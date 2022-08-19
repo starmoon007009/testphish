@@ -1,0 +1,2115 @@
+/*
+	Common Javascript File
+	version 1.5
+	Author : Vikas Sen
+*/
+
+/****************  Functions **************************/
+
+/*
+*   Agruments Type : N(id)
+*   Purpose : Makes components visible
+*   Author : Vikas Sen
+*   Description :
+*       You can pass any number of html field ids to it.
+*       All the html fields will get Appeared.
+*/
+
+// add by vikas for Help Message --start
+shortcut = {
+	'all_shortcuts':{},//All the shortcuts are stored in this array
+	'add': function(shortcut_combination,callback,opt) {
+		//Provide a set of default options
+		var default_options = {
+			'type':'keydown',
+			'propagate':false,
+			'disable_in_input':false,
+			'target':document,
+			'keycode':false
+		}
+		if(!opt) opt = default_options;
+		else {
+			for(var dfo in default_options) {
+				if(typeof opt[dfo] == 'undefined') opt[dfo] = default_options[dfo];
+			}
+		}
+
+		var ele = opt.target;
+		if(typeof opt.target == 'string') ele = document.getElementById(opt.target);
+		var ths = this;
+		shortcut_combination = shortcut_combination.toLowerCase();
+
+		//The function to be called at keypress
+		var func = function(e) {
+			e = e || window.event;
+
+			if(opt['disable_in_input']) { //Don't enable shortcut keys in Input, Textarea fields
+				var element;
+				if(e.target) element=e.target;
+				else if(e.srcElement) element=e.srcElement;
+				if(element.nodeType==3) element=element.parentNode;
+
+				if(element.tagName == 'INPUT' || element.tagName == 'TEXTAREA') return;
+			}
+
+			//Find Which key is pressed
+			if (e.keyCode) code = e.keyCode;
+			else if (e.which) code = e.which;
+			var character = String.fromCharCode(code).toLowerCase();
+
+			if(code == 188) character=","; //If the user presses , when the type is onkeydown
+			if(code == 190) character="."; //If the user presses , when the type is onkeydown
+
+			var keys = shortcut_combination.split("+");
+			//Key Pressed - counts the number of valid keypresses - if it is same as the number of keys, the shortcut function is invoked
+			var kp = 0;
+			var modifiers = {
+
+				ctrl : { wanted:false, pressed:false}
+
+			};
+
+			if(e.ctrlKey)	modifiers.ctrl.pressed = true;
+
+
+			for(var i=0; k=keys[i],i<keys.length; i++) {
+				//Modifiers
+				if(k == 'ctrl' || k == 'control') {
+					kp++;
+					modifiers.ctrl.wanted = true;
+
+				} else { //The special keys did not match
+					if(character == k) kp++;
+					}
+			}
+
+			if(kp == keys.length &&
+						modifiers.ctrl.pressed == modifiers.ctrl.wanted ) {
+				callback(e);
+
+				if(!opt['propagate']) { //Stop the event
+					//e.cancelBubble is supported by IE - this will kill the bubbling process.
+					e.cancelBubble = true;
+					e.returnValue = false;
+
+					//e.stopPropagation works in Firefox.
+					if (e.stopPropagation) {
+						e.stopPropagation();
+						e.preventDefault();
+					}
+					return false;
+				}
+			}
+		}
+		this.all_shortcuts[shortcut_combination] = {
+			'callback':func,
+			'target':ele,
+			'event': opt['type']
+		};
+		//Attach the function with the event
+		if(ele.addEventListener) ele.addEventListener(opt['type'], func, false);
+		else if(ele.attachEvent) ele.attachEvent('on'+opt['type'], func);
+		else ele['on'+opt['type']] = func;
+	}
+}
+
+//alert(contextPath);
+shortcut.add("Ctrl+H",function() {
+     	url=contextPath + "/helpMessageFromDB.action";
+        window.open(url,'newWin1','status=no,\n\
+                        resizable=yes,scrollbars=yes,dependent=yes,left=1000,top=80,location=no');
+    
+},{
+	'type':'keydown',
+    'disable_in_input':false,
+	'propagate':false,
+	'target':document
+});
+// add by vikas for Help Message --ends
+
+function decodestring(utftext,id) {
+    var string = "";
+    var i = 0;
+    var c = c1 = c2 = 0;
+    while ( i < utftext.length ) {
+        c = utftext.charCodeAt(i);
+        if (c < 128) {
+            string += String.fromCharCode(c);
+            i++;
+        }
+        else if((c > 191) && (c < 224)) {
+            c2 = utftext.charCodeAt(i+1);
+            string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+            i += 2;
+        }
+        else {
+            c2 = utftext.charCodeAt(i+1);
+            c3 = utftext.charCodeAt(i+2);
+            string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+            i += 3;
+        }
+    }
+    document.getElementById(id).innerHTML=string;
+}
+
+function show(){
+    var argumentValues = show.arguments;
+    var argumentCount = show.arguments.length;
+    for ( i=0;i<argumentCount;i++)
+        document.getElementById(argumentValues[i]).style.display = '';
+}
+
+/*
+*   Agruments Type : N(id)
+*   Purpose : Makes components invisible
+*   Author : Vikas Sen
+*   Description :
+*       You can pass any number of html field ids to it.
+*       All the html fields will get disappeared.
+*/
+function hide(){
+    var argumentValues = hide.arguments;
+    var argumentCount = hide.arguments.length;
+    for ( i=0;i<argumentCount;i++)
+        document.getElementById(argumentValues[i]).style.display = 'none';
+}
+
+/*
+*   Agruments Type : N(id)
+*   Purpose : Makes components disable
+*   Author : Vikas Sen
+*   Description :
+*       You can pass any number of html field ids to it.
+*       All the html fields will get disabled.
+*/
+function setDisable(){
+    var	argumentValues = setDisable.arguments;
+    var argumentCount = setDisable.arguments.length;
+    for ( i=0;i<argumentCount;i++)
+        document.getElementById(argumentValues[i]).disabled = true;
+}
+
+/*
+*   Agruments Type : N(id)
+*   Purpose : Makes components enable
+*   Author : Vikas Sen
+*   Description :
+*       You can pass any number of html field ids to it.
+*       All the html fields will get enabled.
+*/
+function setEnable(){
+    var	argumentValues = setEnable.arguments;
+    var argumentCount = setEnable.arguments.length;
+    for ( i=0;i<argumentCount;i++)
+        document.getElementById(argumentValues[i]).disabled = false;
+}
+
+
+/*
+*   Agruments Type :  (id,id,Number) or (id,id) or id
+*	Arguments Detail :
+				idScr - id of source textbox
+				idDes - id of destination textbox
+				incrVal - the value which you want to add
+*   Purpose : for 3 agrguments - copy value of idScr + incr to idDes
+			  for 2 agrguments - copy value of idScr + 1 to idDes
+			  for 1 agrgument - copy value of idScr + 1 to idScr
+*   Author : Vikas Sen
+*   Description :
+*       If you enter 2000 in idSrc , it will print 2001 in idDes if you call nextNumber(idScr,idDes)
+*       If you enter 2000 in idSrc , it will print 2010 in idDes if you call nextNumber(idScr,idDes,10)
+*       If you enter 2000 in idSrc , it will print 2001 in idSrc if you call nextNumber(idScr)
+*/
+function nextNumber(idScr,idDes,incrVal){
+    var	argumentValues = nextNumber.arguments;
+    var argumentCount = nextNumber.arguments.length;
+    if (argumentCount ==  0) return;
+    idScr = argumentValues[0];
+    if (argumentCount ==  1){
+        idDes = idScr;
+        incrVal = 1;
+    }
+    else
+    {
+        idDes = argumentValues[1];
+        if (argumentCount ==  2)
+            incrVal = 1;
+        else
+            incrVal = argumentValues[2];
+    }
+    var val = document.getElementById(idScr).value;
+    if(isNumeric(val)){
+        val = parseInt(val,10);
+        document.getElementById(idDes).value = val + incrVal;
+    }
+}
+
+/*
+*   Agruments Type :  id
+*   Purpose : set the focus
+*   Author : Vikas Sen
+*   Description :
+*       Set the focus
+*/
+function setFocus(id){
+    //   document.getElementById(id).focus();
+    try{
+        if(document.getElementById(id) != null && document.getElementById(id).disabled != true ){
+            setTimeout(function() {
+                try{
+                    document.getElementById(id).focus();
+                }
+                catch(err){}
+            } ,1);
+            if(document.getElementById(id).tagName.toString().toUpperCase() == "TEXTAREA"  ||( document.getElementById(id).tagName.toString().toUpperCase() == "INPUT" && document.getElementById(id).type.toString().toUpperCase() =="TEXT"))
+            {
+                if(document.getElementById(id).value!='')
+                    document.getElementById(id).select();
+            }
+        }
+    }
+    catch(err){}
+}
+
+/*
+*   Agruments Type :  event
+*   Purpose : only digits are allowed to enter
+*   Author : Vikas Sen
+*   Description :
+*       User can enter only digits, not any other characters.
+*       how to call : onKeyPress = "onlyNumber(event)"
+*/
+function onlyNumber(e,errorId){
+    var flag = false;
+
+    if  (e.keyCode) {
+        code = e.keyCode;
+        flag = true;
+    }
+    else if (e.which) code = e.which;
+
+    if(code!=8 && code!=13 && !( code==118 && e.ctrlKey) && !( code==99 && e.ctrlKey)  )
+        if ((code < 48) || (code > 57)){
+            e.cancelBubble = true;
+
+            if(!flag){
+                if (e.stopPropagation) e.stopPropagation();
+                e.preventDefault();
+            }
+            else
+                e.returnValue = false;
+            if(typeof errorId != "undefined" )
+                show(errorId);
+            return;
+        }
+    if(typeof errorId != "undefined" )
+        hide(errorId);
+}
+
+/*
+*   Agruments Type :  id,fomrmat
+*   Purpose : Validate Date fomrmat
+*   Author : Vikas Sen
+*   Description :
+*       Function for validating Date, a utility function
+*/
+function validDateFormat(id,format){
+    ret = false;
+    if(id == null || format==null){
+        return false;
+    }
+    dateVal = document.getElementById(id).value;
+
+    if (dateVal !="" )
+    {
+        if ( format == "dd/mm/yyyy" )
+            re = /^\d{2}\/\d{2}\/\d{4}$/;
+        else
+        if ( format == "mm/yyyy" )
+            re = /^\d{1,2}\/\d{4}$/;
+        else
+            return ret;
+        if(dateVal.match(re) )
+            ret = true;
+    }
+
+    return ret;
+}
+
+/*
+*   Agruments Type :  id,errorId,flag
+*   Purpose : Validate Date
+*   Author : Vikas Sen
+*   Description :
+*       Function for validating Date, a Client Side Validation
+*       Last flag is optional , only for when moth  -00 is acceptable
+*/
+function validateDate(id,errorId,format,flag,flag00){
+    ret = false;
+    if(id == null || errorId == null || format==null){
+        hide(errorId);
+        return ret;
+    }
+
+    if( typeof flag00 == "undefined")
+        flag00 = false;
+
+    dateVal = document.getElementById(id).value;
+    if(dateVal == 'dd/mm/yyyy' ||dateVal == 'mm/yyyy'||dateVal == 'yyyy'  ){
+        hide(errorId);
+        return false;
+    }
+    if (dateVal !="" )
+    {
+        if ( format == "dd/mm/yyyy" )
+            re = /^\d{2}\/\d{2}\/\d{4}$/;
+        else
+        if ( format == "mm/yyyy" )
+            re = /^\d{1,2}\/\d{4}$/;
+        else
+        if ( format == "yyyy" )
+            re = /^\d{4}$/;
+        else
+            return ret;
+        if(!dateVal.match(re) || !validDate(dateVal,format,flag00) )
+        {
+            show(errorId);
+            if(flag)
+                setFocus(id);
+        }
+        else
+        {
+            hide(errorId);
+            ret = true;
+        }
+        return ret;
+    }
+    else
+    {
+        hide(errorId);
+        return ret;
+    }
+}
+
+/*
+*   Agruments Type :  N (id)
+*   Purpose : check for required/null for n no of fields
+*   Author : Vikas Sen
+*   Description :
+*       Function for required check, a Client Side Validation
+*/
+function requiredFields(){
+    var flag;
+    var	argumentValues = requiredFields.arguments;
+    var argumentCount = requiredFields.arguments.length;
+    var i=0;
+    var j=-1;
+    flag = true;
+    while(i <  (2 * (argumentCount/2) - 1) )
+    {
+
+        var val = document.getElementById(argumentValues[i]).value ;
+        if(val=='dd/mm/yyyy' || val=='mm/yyyy' || val == 'yyyy')
+            val ='';
+        if ( val == null  || val == "" || val.replace(/^\s+|\s+$/g,"").length == 0  ) {
+            show(argumentValues[i+1]);
+            if(flag)
+                j = i;
+            flag = false;
+        }
+        else{
+            hide(argumentValues[i+1]);
+        }
+        i = i + 2;
+    }
+    if(j!=-1) setFocus(argumentValues[j]);
+    return flag;
+}
+
+
+/*
+*   Agruments Type :  id,errorId,flag
+*   Purpose : Validate Email
+*   Author : Vikas Sen
+*   Description :
+*       Function for validating Email, a Client Side Validation*
+*/
+function validateEmail(id,errorId,flag){
+    var email = document.getElementById(id);
+    var filter = /^([a-z0-9_\.\-])+\@(([a-z0-9\-])+\.)+([a-z0-9]{2,4})+$/;
+    if (email.value!=""  &&!filter.test(email.value)) {
+        show(errorId);
+        if(flag)
+            setFocus(id);
+        return false;
+    }
+    else{
+        hide(errorId);
+        return true;
+    }
+}
+
+/*
+*   Agruments Type :  id,errorId,flag
+*   Purpose : Validate Single Field Option
+*   Author : Vikas Sen
+*   Description :
+*       Function for validating single character field, a Client Side Validation
+*       here choice is string of valid options
+*       eg. 'abc' , now only a or b or c is valid.
+*/
+function validateSingleFieldOption(id,errorId,choice,flag){
+    var item = document.getElementById(id);
+
+    if ( item.value!="" &&  choice.indexOf(item.value)== -1) {
+        show(errorId);
+        if(flag)
+            setFocus(id);
+        return false;
+    }
+    else{
+        hide(errorId);
+        return true;
+    }
+}
+
+
+/*
+*   Agruments Type :  id,errorId,flag
+*   Purpose : Validate Number (Integer)
+*   Author : Vikas Sen
+*   Description :
+*       Function for validating Numeric Data, a Client Side Validation
+*       eg. 10 , 123, 123 are valid
+*
+*/
+function validateNumber(id,errorId,flag){
+    var item = document.getElementById(id);
+
+    if ( item.value!="" &&  !isNumeric(item.value)) {
+        show(errorId);
+        if(flag)
+            setFocus(id);
+        return false;
+    }
+    else{
+        hide(errorId);
+        return true;
+    }
+}
+
+/*
+*   Agruments Type :  id,errorId,flag
+*   Purpose : Validate Number(Double)
+*   Author : Vikas Sen
+*   Description :
+*       Function for validating Numeric Data, a Client Side Validation
+*       eg. 10.1 , 123, 12.3 are valid
+*
+*/
+function validateDecimalNumber(id,errorId,flag){
+    var item = document.getElementById(id);
+
+    if ( item.value!="" &&  !isDecimal(item.value)) {
+        show(errorId);
+        if(flag)
+            setFocus(id);
+        return false;
+    }
+    else{
+        hide(errorId);
+        return true;
+    }
+}
+
+/*
+*   Agruments Type :  id,errorId,funcId,flag
+*   Purpose : Common Validation Function
+*   Author : Vikas Sen
+*   Description :
+*       FuncId is business logic, this function will take care of error handling you just
+*       need to pass your function id.
+*       eg.
+*       validateCommon('amtTxt','amtTxtErr1',isNumeric( 123 ),flag)
+*
+*/
+function validateCommon(id,errorId,funcId,flag){
+    var item = document.getElementById(id);
+
+    if ( item.value!="" &&  ! funcId) {
+        show(errorId);
+        if(flag)
+            setFocus(id);
+        return false;
+    }
+    else{
+        hide(errorId);
+        return true;
+    }
+}
+
+/*
+*   Agruments Type :  id,errorId,len,flag
+*   Purpose : lengh must be len
+*   Author : Vikas Sen
+*   Description :
+*       length should be equal to len*
+*       eg.
+*       ret =  validateExactLength('policyNoTxt','policyNoTxtErr1',9,ret) && ret;
+*
+*/
+function validateExactLength(id,errorId,len,flag){
+    var item = document.getElementById(id);
+    if ( item.value!="" &&  item.value.length != len ) {
+        show(errorId);
+        if(flag)
+            setFocus(id);
+        return false;
+    }
+    else{
+        hide(errorId);
+        return true;
+    }
+}
+
+/*
+*   Agruments Type :  id,errorId,len,flag
+*   Purpose : lengh must be minimum len
+*   Author : Vikas Sen
+*   Description :
+*       length should be greater than equal to len*
+*       eg.
+*       ret =  validateMinLength('policyNoTxt','policyNoTxtErr1',7,ret) && ret;
+*
+*/
+function validateMinLength(id,errorId,len,flag){
+    var item = document.getElementById(id);
+    if ( item.value!="" &&  item.value.length < len ) {
+        show(errorId);
+        if(flag)
+            setFocus(id);
+        return false;
+    }
+    else{
+        hide(errorId);
+        return true;
+    }
+}
+
+/*
+*   Agruments Type :  id,errorId,len1,len2,flag
+*   Purpose : Lenght in range of len1 and len2
+*   Author : Vikas Sen
+*   Description :
+*       Lenght should >= len1 and <= len2
+*       eg.
+*       ret =  validateLengthinRange('amtTxt','amtTxtErr0',3,6,ret) && ret;
+*
+*/
+function validateLengthinRange(id,errorId,len1,len2,flag){
+    var item = document.getElementById(id);
+    if ( item.value!="" && ( item.value.length < len1 ||  item.value.length > len2) ) {
+        show(errorId);
+        if(flag)
+            setFocus(id);
+        return false;
+    }
+    else{
+        hide(errorId);
+        return true;
+    }
+}
+
+/*
+*   Agruments Type :  String
+*   Purpose : checks whether String is numeric(integer) // not for client side js validation// Just a utility function
+*   Author : Vikas Sen
+*   Description :
+*       You can pass any string to it.
+*       It will check whether it is Numeric or not.
+*/
+function isNumeric(sText){
+    var filter = /^-{0}\d*\.{0}\d+$/;
+    return filter.test(sText);
+}
+
+/*
+*   Agruments Type :  String
+*   Purpose : checks whether String is numeric(decimal) // not for client side js validation// Just a utility function
+*   Author : Vikas Sen
+*   Description :
+*       You can pass any string to it.
+*       It will check whether it is Numeric or not.
+*/
+function isDecimal(sText){
+    var filter = /^-{0}\d*\.{0,1}\d+$/;
+    return filter.test(sText);
+}
+
+
+
+/*
+*   Agruments Type :  date ( value not id )
+*   Purpose : checks whether date is valid // not for client side js validation// Just a utility function
+*   Author : Vikas Sen
+*   Description :
+*       You can pass any date to it like dd/mm/yy or dd-mm-yyyy or dd.mm.yyyy
+*       It will check whether it is Numeric or not.
+*/
+function validDate(field,format,flag00){
+    var checkstr = "0123456789";
+    var DateValue = "";
+    var DateTemp = "";
+    var day;
+    var month;
+    var year;
+    var leap = 0;
+    var err = 0;
+    var i;
+
+    if( typeof flag00 == "undefined")
+        flag00 = false;
+
+    err = 0;
+    DateValue = field;
+    /* Delete all chars except 0..9 */
+    for (i = 0; i < DateValue.length; i++) {
+        if (checkstr.indexOf(DateValue.substr(i,1)) >= 0) {
+            DateTemp = DateTemp + DateValue.substr(i,1);
+        }
+    }
+    DateValue = DateTemp;
+    /* Always change date to 8 digits - string*/
+
+    if (format  == 'dd/mm/yyyy') {
+        err = 0;
+    }
+
+    if (format  == 'mm/yyyy') {
+        err = 2;
+    }
+
+    if( format  == 'yyyy') {
+        if( parseInt(DateValue,10)=='0')
+            return false;
+        else
+            return true;
+    }
+
+    /* year is wrong if year = 0000 */
+    year = DateValue.substr(4-err,4);
+    if (year == 0000) {
+        err = 20;
+    }
+    /* Validation of month*/
+    month = DateValue.substr(2-err,2);
+    if ((month < 1 && !flag00) || (month > 12)) {
+        err = 21;
+    }
+
+    if(err==0) {
+        /* Validation of day*/
+        day = DateValue.substr(0,2);
+        if (day < 1) {
+            err = 22;
+        }
+        /* Validation leap-year / february / day */
+        if ((year % 4 == 0) || (year % 100 == 0) || (year % 400 == 0)) {
+            leap = 1;
+        }
+        if ((month == 2) && (leap == 1) && (day > 29)) {
+            err = 23;
+        }
+        if ((month == 2) && (leap != 1) && (day > 28)) {
+            err = 24;
+        }
+        /* Validation of other months */
+
+        if ((day > 31) && ((month == "01") || (month == "03") || (month == "05") || (month == "07") || (month == "08") || (month == "10") || (month == "12"))) {
+            err = 25;
+        }
+        if ((day > 30) && ((month == "04") || (month == "06") || (month == "09") || (month == "11"))) {
+            err = 26;
+        }
+        if (day == 00) {
+            err = 27;
+        }
+    }
+    /* if 00 ist entered , it is error*/
+    if ((month == 00) && (year == 0000)) {
+        err = 27;
+    }
+    /* if no error, write the completed date to Input-Field (e.g. 13.12.2001) */
+    if (err <= 2) {
+        //DateField.value = day + seperator + month + seperator + year;
+        return true;
+    }
+    /* Error-message if err != 0 */
+    else {
+        return false;
+    }
+}
+
+// Author : Rajdeep Singh
+function viewPrint(){
+    var argumentValues = viewPrint.arguments;
+    var argumentCount = viewPrint.arguments.length;
+    var printPath;
+    var url;
+    //alert(argumentCount);
+    if(argumentCount == 1){
+        //alert(argumentValues[0]);
+        printPath = argumentValues[0];
+        url=contextPath + "/viewPrintFile.action?"+"printPath="+printPath+"&type=multiple";
+        window.open(url,'newWin1','status=no,\n\
+                        resizable=yes,scrollbars=yes,dependent=yes,left=120,top=80,location=no');
+    }else if(argumentCount == 0){
+        printPath = document.getElementById("nextStepPath").value;
+        //url=contextPath + "/viewPrintFile.action?type=null";
+	  url=contextPath + "/viewPrintFile.action?type=null&printPath="+printPath;
+        window.open(url,'newWin1','status=no,\n\
+                            resizable=yes,scrollbars=yes,dependent=yes,left=120,top=80,location=no');
+    }
+    return false;
+}
+
+// Author : Rajdeep Singh
+
+function edms(policyNumber){
+    url = contextPath+"/EdmsAction.action?"+"policyNumber="+policyNumber;
+    window.open(url,'newWin1');
+}
+/*
+function silentPrint(printPath)
+{
+    //alert("testing ");
+    //alert('testing context path-----> '+appletUrl);
+    var servletPath = appletUrl;
+    var userId;
+    var locationCode;
+     var MenuIdCode;
+
+     if(document.getElementById("LayoutUserAccessedId")==null || document.getElementById("LayoutLocationId")==null ||document.getElementById("LayoutMenuAccessedId")==null)
+         {
+             userId = parent.document.getElementById("LayoutUserAccessedId").value;
+            locationCode = parent.document.getElementById("LayoutLocationId").value;
+            MenuIdCode = parent.document.getElementById("LayoutMenuAccessedId").value;
+            languageCode=parent.document.getElementById("LanguageCode").value;
+         }
+      else
+          {
+              userId = document.getElementById("LayoutUserAccessedId").value;
+              locationCode = document.getElementById("LayoutLocationId").value;
+              MenuIdCode = document.getElementById("LayoutMenuAccessedId").value;
+              languageCode=parent.document.getElementById("LanguageCode").value;
+          }
+
+    //alert('print path -> '+printPath);
+    if(printPath != "" && servletPath != "" && userId != null && locationCode != null){
+
+        document.PrintApplet.printFile(printPath, servletPath, userId, locationCode, MenuIdCode,languageCode);
+    }else{
+        alert("Error While populating: \n\
+            userId-"+userId+" \n\
+            locationCode-"+locationCode+" \n\
+            printPath-"+printPath+" \n\
+            servletPath-"+servletPath+" \n\
+            menu Id-"+MenuIdCode);
+    }
+    //alert("done");
+    return true;
+}
+
+
+*/
+//From this for report conversion
+var convertprintfilepath;
+var fileDownloadMsg;
+
+function silentPrint(printPath)
+{
+    var langcode;
+    var pdflang;
+    if (parent.document.getElementById("LanguageCode")==null){
+         langcode = 'en';
+     }
+     else {
+        langcode=parent.document.getElementById("LanguageCode").value;
+     }
+
+    if(langcode!=null && langcode!='null'){
+//    alert(printPath);
+    convertprintfilepath = printPath;
+    var url = contextPath+"/checkPrintFileSelected.action?printpath="+convertprintfilepath;
+    //alert(url)
+    if(window.XMLHttpRequest){
+        req = new XMLHttpRequest();
+    }else if (window.ActiveXObject){
+        req = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    //req.onreadystatechange = callPopupForuseropt;
+    req.open("GET",url, false);
+    req.send(null);
+
+    if(req.readyState == 4){
+        if (req.status == 200){
+            var str = req.responseText;
+  //                      alert(str);
+            if(str != "notfound"){
+                var lang = "";
+                pdflang=str.split("_");
+               /* if(str == "foundwith_en"){
+                    lang = "en";
+                }else if(str == "foundwith_hi_Y"){
+                    lang = "hi_Y";
+                }else if(str == "foundwith_hi_N"){
+                    lang = "hi_N";
+                }*/
+                lang=pdflang[1]+"_"+pdflang[2];
+                fileDownloadMsg = dhtmlmodal.open("fileDownloadMsg", "iframe", contextPath+"/jsp/common/FileDownloadToPdfPopup.jsp?lang="+lang, userop, "width=360px,height=120px,resize=1,scrolling=1,center=1", "recal");
+            }else {
+	//	alert(str+"inside ajax call"+convertprintfilepath);
+                callPrintFile(convertprintfilepath) ;
+            }
+        }
+    }
+    }else{
+       return callPrintFile(printPath);
+}
+}
+
+
+var topdfopt;
+function closeAfterUserCheck(){
+    //alert("hi");
+    if(fileDownloadMsg != null){
+        fileDownloadMsg.hide();
+        fileDownloadMsg = null;
+    }
+    var topdf = document.getElementById("topdf").value;
+    topdfopt = topdf;
+    if(topdf != "N"){
+        convertFile();
+    }else{
+        callPrintFile(convertprintfilepath) ;
+    }
+}
+
+function convertFile(){
+    var pdflangarr;
+    var watermark;
+    var locationId = document.getElementById('LayoutLocationId').value;
+    if(locationId == ""){
+        locationId = document.getElementById("locID").value;
+    }
+    try{
+        pdflangarr=topdfopt.split("_");
+        watermark=pdflangarr[1];
+//        alert(convertprintfilepath+"  "+topdfopt);
+        var pathToConvert;
+        if(topdfopt == "en_Y" || watermark == "Y"){//"Y" means english, hi_Y means hindi with watermarking flag
+            if(topdfopt == "en_Y"){
+                pathToConvert = convertprintfilepath;
+            }else if(watermark == "Y"){
+                //Call CDAC function to convert to pdf and get filepath
+                pathToConvert = document.fileConvertApplet.readHindiFile(appletUrl,topdfopt,convertprintfilepath,locationId);
+                if(pathToConvert != "Exception"){
+                pathToConvert = document.fileConvertApplet.upload(appletUrl,pathToConvert,locationId,topdfopt);
+                }
+//                //Call upload file applet with filepath as parameter and get uploaded path
+//                document.fileUploadApplet.upload(appletUrl,pathToConvert,locationId);
+            }
+            if(pathToConvert != "Exception"){
+                var url = contextPath+"/convertSelectFile.action?filepath="+pathToConvert+"&locationCode="+locationId;
+                if(window.XMLHttpRequest){
+                    req = new XMLHttpRequest();
+                }else if (window.ActiveXObject){
+                    req = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                req.onreadystatechange = convertFileSuccess;
+                req.open("POST",url, true);
+                req.send(null);
+            }else{
+              fileDownloadMsg = dhtmlmodal.open("fileDownloadMsg", "iframe", contextPath+"/jsp/common/FileTransactionError.jsp?fileTxnMsg=okfailconv&flag=true", info, "width=360px,height=120px,resize=1,scrolling=1,center=1", "recal");
+            }
+        } else if(watermark == "N"){
+            //Call CDAC function to convert to pdf and get filepath
+            var newPath = document.fileConvertApplet.readHindiFile(appletUrl,topdfopt,convertprintfilepath,locationId);
+            if(newPath != "Exception"){
+            pathToConvert = document.fileConvertApplet.upload(appletUrl,newPath,locationId,topdfopt);
+            fileDownloadMsg = dhtmlmodal.open("fileDownloadMsg", "iframe", contextPath+"/jsp/common/FileTransactionError.jsp?fileTxnMsg=oksuccessconv&flag=true", info, "width=360px,height=120px,resize=1,scrolling=1,center=1", "recal");
+            }else{
+              fileDownloadMsg = dhtmlmodal.open("fileDownloadMsg", "iframe", contextPath+"/jsp/common/FileTransactionError.jsp?fileTxnMsg=okfailconv&flag=true", info, "width=360px,height=120px,resize=1,scrolling=1,center=1", "recal");
+            }
+//            //Call upload file applet with filepath as parameter
+//            document.fileUploadApplet.upload(appletUrl,newPath,locationId);
+        }
+    }catch(err){
+        alert(err);
+    }
+}
+
+function convertFileSuccess(){
+    if(req.readyState == 4){
+        if (req.status == 200){
+            var v = req.responseText;
+//            alert(v);
+            var retVal = v.split("$#");
+            if(retVal[0] == "success"){
+                fileDownloadMsg = dhtmlmodal.open("fileDownloadMsg", "iframe", contextPath+"/jsp/common/FileTransactionError.jsp?fileTxnMsg=oksuccessconv&flag=true", info, "width=360px,height=120px,resize=1,scrolling=1,center=1", "recal");
+            }else if(retVal[0] == "error"){
+                fileDownloadMsg = dhtmlmodal.open("fileDownloadMsg", "iframe", contextPath+"/jsp/common/FileTransactionError.jsp?fileTxnMsg=okfailconv&flag=true", info, "width=360px,height=120px,resize=1,scrolling=1,center=1", "recal");
+                //alert("Error Occured!");
+            }
+        }
+    }
+}
+
+function closeButtonEvent(){
+    if(fileDownloadMsg != null){
+        fileDownloadMsg.hide();
+        fileDownloadMsg = null;
+    }
+//document.searchfrm.action="printFileSearchDownloadAction.action";
+//document.searchfrm.submit();
+}
+
+function callPrintFile(printPath){
+    //  alert("testing ");
+    // alert('testing context path-----> '+printPath);
+    //    var servletPath = appletUrl;
+    //    var userId;
+    //    var locationCode;
+    //    var MenuIdCode;
+    var languageCode;
+    // var temp;
+
+     if (parent.document.getElementById("LanguageCode")==null)
+     {
+        languageCode = 'en';
+       }
+       else {
+    languageCode=parent.document.getElementById("LanguageCode").value;
+          }
+  if(languageCode != 'en'){
+      getPrintLangCode(languageCode,printPath);
+  }
+    else{
+    var servletPath = appletUrl;
+    var userId;
+    var locationCode;
+    var MenuIdCode;
+            var languageCode1;
+   var temp;
+            //alert(servletPath);
+
+    if(document.getElementById("LayoutUserAccessedId")==null || document.getElementById("LayoutLocationId")==null ||document.getElementById("LayoutMenuAccessedId")==null)
+    {
+        userId = parent.document.getElementById("LayoutUserAccessedId").value;
+        locationCode = parent.document.getElementById("LayoutLocationId").value;
+        MenuIdCode = parent.document.getElementById("LayoutMenuAccessedId").value;
+                languageCode1=languageCode;
+    }
+    else
+    {
+        userId = document.getElementById("LayoutUserAccessedId").value;
+        locationCode = document.getElementById("LayoutLocationId").value;
+        MenuIdCode = document.getElementById("LayoutMenuAccessedId").value;
+         //       languageCode1=parent.document.getElementById("LanguageCode").value;
+                 languageCode1=languageCode;
+    }
+//            if(languageprintcode !=null && printcode[0]=="Y"){
+//                languageCode1='en';
+//            }
+//            if(languageprintcode !=null && printcode[0]=="N"){
+//                languageCode1=printcode[1];
+//            }
+//            if(languageprintcode !=null && printcode[0]=="D"){
+//                languageCode1=printcode[1];
+//            }
+
+            if(languageCode1=='en'){
+
+    document.PrintApplet.printFile(printPath, servletPath, userId, locationCode, MenuIdCode);
+}
+else{
+                document.NewPrintApplet.printFile_nationalization(printPath, servletPath, userId, locationCode, MenuIdCode,languageCode1);
+}
+    }
+
+
+    return true;
+}
+
+//Upto this for report conversion
+
+// Author : Rajdeep Singh
+function deletePrintFile(printFilePath){
+    url=contextPath + "/deletePrintFile.action?"+"printPath="+printFilePath;
+    window.open(url,'newWin1','status=no,width=1,height=1,left=0,top=0');
+}
+
+// Author: Rajdeep Singh
+
+
+
+/*
+ * inputFieldId is the Id of TextField element in the html where the value
+ * from the popup is to be displayed
+ */
+var popupFieldId
+function searchPopup(inputFieldId, uploadUserId, uploadLocation){
+    popupFieldId = inputFieldId
+    if(uploadUserId != null && uploadUserId != '' && uploadLocation != null && uploadLocation != ''){
+        window.open(contextPath+'/fileSearchprocessFileSearchAction.action?userid='+uploadUserId+'&uploadLocation='+uploadLocation,'newWin1','status=yes,\n\
+                    resizable=yes,scrollbars=no,dependent=yes,left=120,top=80,location=no');
+    }else{
+        alert("provide all values uploadUserId-"+uploadUserId+" & uploadLocation-"+uploadLocation);
+    }
+}
+
+function getValFrmPopup(popUpVal){
+    document.getElementById(popupFieldId).value = popUpVal;
+}
+
+
+/*
+*   Agruments Type :  none
+*   Purpose : Opens a window, having result of your print file
+*   Author : Vikas Sen
+*   Description :
+*       wiill open a new window/popup for print file
+*/
+
+function displayPrintFile(){
+    // window.open('', 'newWin', 'width=750,height=600,status=no,resizable=no,scrollbars=no,dependent=yes,left=120,top=80');
+    // document.getElementById(formId).target = "newWin";
+    // document.getElementById(formId).action=actionName;
+    // document.getElementById(formId).submit();
+    var url=contextPath + "/jsp/common/printFile.html";
+    window.open(url,'newWin1','width=750,height=650,status=no,\n\
+      resizable=no,scrollbars=yes,dependent=yes,left=120,top=80,location=no');
+    return false;
+
+}
+
+
+/***********************NUMERICAL INPUT MASKING FUNCTIONS*****************************************/
+
+/*   Agruments Type :  event.keyCode, this, mask
+*   Purpose : input masking
+*   Author : Vikas Sen
+*   Description :
+*       Last option is mask,
+*       it could ##-## or ##/##### or ##/##/#### etc
+*       eg.
+*       onKeyDown="javascript:return dFilter (event.keyCode, this, '##/##/####')"
+*
+*/
+var dFilterStep;
+
+function dFilterStrip (dFilterTemp, dFilterMask)
+{
+    dFilterMask = replace(dFilterMask,'#','');
+    for (dFilterStep = 0; dFilterStep < dFilterMask.length++; dFilterStep++)
+    {
+        dFilterTemp = replace(dFilterTemp,dFilterMask.substring(dFilterStep,dFilterStep+1),'');
+    }
+    return dFilterTemp;
+}
+
+function dFilterMax (dFilterMask)
+{
+    dFilterTemp = dFilterMask;
+    for (dFilterStep = 0; dFilterStep < (dFilterMask.length+1); dFilterStep++)
+    {
+        if (dFilterMask.charAt(dFilterStep)!='#')
+        {
+            dFilterTemp = replace(dFilterTemp,dFilterMask.charAt(dFilterStep),'');
+        }
+    }
+    return dFilterTemp.length;
+}
+
+function dFilter (key, textbox, dFilterMask)
+{
+    dFilterNum = dFilterStrip(textbox.value, dFilterMask);
+
+    if (key==9)
+    {
+        return true;
+    }
+    else if (key==8&&dFilterNum.length!=0)
+    {
+        dFilterNum = dFilterNum.substring(0,dFilterNum.length-1);
+    }
+    else if ( ((key>47&&key<58)||(key>95&&key<106)) && dFilterNum.length<dFilterMax(dFilterMask) )
+    {
+
+        if(key>95&&key<106)
+            key = parseInt(key) -  48;
+
+        dFilterNum=dFilterNum+String.fromCharCode(key);
+    }
+
+    var dFilterFinal='';
+    for (dFilterStep = 0; dFilterStep < dFilterMask.length; dFilterStep++)
+    {
+        if (dFilterMask.charAt(dFilterStep)=='#')
+        {
+            if (dFilterNum.length!=0)
+            {
+                dFilterFinal = dFilterFinal + dFilterNum.charAt(0);
+                dFilterNum = dFilterNum.substring(1,dFilterNum.length);
+            }
+            else
+            {
+                dFilterFinal = dFilterFinal + "";
+            }
+        }
+        else if (dFilterMask.charAt(dFilterStep)!='#')
+        {
+            dFilterFinal = dFilterFinal + dFilterMask.charAt(dFilterStep);
+        }
+    }
+
+
+    textbox.value = dFilterFinal;
+    return false;
+}
+
+function replace(fullString,text,by) {
+    // Replaces text with by in string
+    var strLength = fullString.length, txtLength = text.length;
+    if ((strLength == 0) || (txtLength == 0)) return fullString;
+
+    var i = fullString.indexOf(text);
+    if ((!i) && (text != fullString.substring(0,txtLength))) return fullString;
+    if (i == -1) return fullString;
+
+    var newstr = fullString.substring(0,i) + by;
+
+    if (i+txtLength < strLength)
+        newstr += replace(fullString.substring(i+txtLength,strLength),text,by);
+
+    return newstr;
+}
+/****************************END OF INPUT MASKING FUNCTIONS*******************************/
+/*
+*   Agruments Type :  id ( id of datefield), format ( dd/mm/yyyy or mm/yyyy or yyyy )
+*   Purpose : check for current or back dates
+*   Author : Vikas Sen
+*   Description :
+*       Today or back dates are valid :returns true
+*       future dates are invalid : returs false
+*
+*       validateCommon ('deathDtTxt','deathDtTxtErr2',notFutureDate('deathDtTxt','dd/mm/yyyy'),ret)&& ret;
+*/
+function notFutureDate(id,format){
+
+    var input = document.getElementById(id).value;
+
+   var srvrddmmyyyy = document.getElementById("serverddmmyyyy").value;
+   var srvrmmyyyy = document.getElementById("servermmyyyy").value;
+   var srvryyyy = document.getElementById("serveryyyy").value;
+
+
+    if(input == '' || input == null)
+        return true;
+    var date1 = new Date();
+    var srvrdate = new Date();
+
+
+    var n = 0;
+
+    if ( format == 'dd/mm/yyyy') {
+        n = 7;
+        serverFormat = srvrddmmyyyy
+    }
+    else
+    if ( format == 'mm/yyyy') {
+        n =4;
+        serverFormat = srvrmmyyyy
+    }
+    else
+    if (format == 'yyyy') {
+        n = 1;
+        serverFormat = srvryyyy
+    }
+
+
+    if( n == 7){
+        var day = parseInt(input.substr(0,2),10);
+        var serverday = parseInt(serverFormat.substr(0,2),10);
+
+        date1.setDate(day);
+        srvrdate.setDate(serverday);
+
+
+    }
+    if ( n >= 4){
+
+        var month = parseInt(input.substr(n-4,2),10) -1;
+        var servermonth = parseInt(serverFormat.substr(n-4,2),10) -1;
+
+        date1.setMonth(month);
+        srvrdate.setMonth(servermonth);
+
+
+
+    }
+    if ( n > 0){
+        var year = parseInt(input.substr(n-1,4),10);
+        var serveryear = parseInt(serverFormat.substr(n-1,4),10);
+        date1.setYear(year);
+        srvrdate.setYear(serveryear);
+
+    }
+
+
+
+    if(date1 <= srvrdate)
+       return true;
+    else
+        return false;
+
+
+
+}
+
+
+/*   Agruments Type :  id ( id of datefield), startDate, EndDate
+*   Purpose : check for date is between or eqaul of startDate and EndDate
+*   Author : Vikas Sen
+*   Description :
+*       dateInRange('id1','01/01/2009','31/12/2009')
+*   for client side validate call : validateCommon('id','errorId',dateInRange('id1','01/01/2009','31/12/2009')
+*	,true)
+*/
+
+function dateInRange(id,startDate,endDate){
+    var input = document.getElementById(id).value;
+    if(input == '' || input == null)
+        return true;
+    var date1 = new Date();
+    var date2 = new Date();
+    var date3 = new Date();
+
+    len1 = startDate.length;
+    len2 = endDate.length;
+    len3 = input.length;
+
+    if( (len1 != len2) || (len2 != len3))
+        return false;
+
+
+    var n = 0;
+
+    if ( len1 == 10 )
+        n = 7;
+    else
+    if ( len1 == 7)
+        n =4;
+    else
+    if (len1 == 4)
+        n = 1;
+
+
+    if( n == 7){
+        date1.setDate(parseInt(input.substr(0,2),10));
+        date2.setDate(parseInt(startDate.substr(0,2),10));
+        date3.setDate(parseInt(endDate.substr(0,2),10));
+    }
+    if ( n >= 4){
+        date1.setMonth(parseInt(input.substr(n-4,2),10)-1);
+        date2.setMonth(parseInt(startDate.substr(n-4,2),10)-1);
+        date3.setMonth(parseInt(endDate.substr(n-4,2),10)-1);
+    }
+    if ( n > 0){
+        date1.setYear(parseInt(input.substr(n-1 ,4),10));
+        date2.setYear(parseInt(startDate.substr(n-1,4),10));
+        date3.setYear(parseInt(endDate.substr(n-1,4),10));
+    }
+
+    if( date1 >= date2 && date1 <= date3 )
+        return true;
+    else
+        return false;
+}
+
+/*  Agruments Type :  id
+*   Purpose : returns the value of html component
+*   Author : Vikas Sen
+*   Description :
+*     eg. this.value = getValueFromId('policyNoTxt');
+*
+*/
+
+function getValueFromId(id){
+    return document.getElementById(id).value;
+}
+
+/*  Agruments Type :  id,val
+*   Purpose : set the value of html component
+*   Author : Vikas Sen
+*   Description :
+*     eg. setValueInId('policyNoTxt','111111111');
+*         setValueInId('policyNoTxt',12232323);
+*         setValueInId('policyNoTxt',new Date());*
+*
+*/
+function setValueInId(id,val){
+    document.getElementById(id).value = val;
+}
+
+/*  Agruments Type :  id,id
+*   Purpose : copy value of html component
+*   Author : Vikas Sen
+*   Description :
+*     eg. copyValfromIdtoId('scrId','DesId');
+*
+*/
+function copyValfromIdtoId(idScr,idDes){
+    document.getElementById(idDes).value = document.getElementById(idScr).value;
+}
+
+/*  Agruments Type :  id,id
+*   Purpose : makes the single digit to double
+*   Author : Vikas Sen
+*   Description :
+*     eg. makeDoubleDigit(5), will return '05'
+*
+*/
+function makeDoubleDigit(IntVal){
+    if( IntVal < 10 )
+        IntVal = '0'+IntVal;
+    return IntVal;
+}
+
+/*  Agruments Type :  Date value
+*   Purpose : convert Date value to 'dd/mm/yyyy' or 'mm/yyyy' or 'yyyy' format
+*   Author : Vikas Sen
+*   Description :
+*     eg. dateToValue(new Date())
+*           Output:  '01/01/2009' ( will return todays date in dd/mm/yyyy format)
+*         dateToValue(new Date(),'dd/mm/yyyy')
+*           Output:  '01/01/2009' ( will return todays date in dd/mm/yyyy format)
+*         dateToValue(new Date(),'mm/yyyy')
+*           Output:  '01/2009' ( will return todays date in mm/yyyy format)
+*         dateToValue(new Date(),'yyyy')
+*           Output:  '2009' ( will return todays date in yyyy format)
+*
+*/
+function dateToValue(dateVar,format){
+    var dd = dateVar.getDate();
+    var mm = dateVar.getMonth()+1;
+    var yy = dateVar.getFullYear();
+    var retVal;
+    if (typeof format == "undefined")
+        format = "dd/mm/yyyy";
+    if(format == 'dd/mm/yyyy')
+        retVal = makeDoubleDigit(dd)+'/'+makeDoubleDigit(mm)+'/'+yy;
+    if(format == 'mm/yyyy')
+        retVal = makeDoubleDigit(mm)+'/'+yy;
+    if(format == 'yyyy')
+        retVal = yy;
+    return retVal;
+}
+
+/*  Agruments Type :  string in 'dd/mm/yyyy' or 'mm/yyyy' or 'yyyy' format
+*   Purpose : convert value from 'dd/mm/yyyy' or 'mm/yyyy' or 'yyyy' format to date value
+*   Author : Vikas Sen
+*   Description :
+*     eg. valueToDate('01/01/2009')
+*         valueToDate('01/2009')
+*         valueToDate('2009')
+*
+*/
+function valueToDate(value){
+    var len = value.length;
+    dateVar = new Date();
+
+
+    if(len >= 7)
+        dateVar.setMonth(value.substr(len - 7,2)-1);
+    if(len >= 10)
+        dateVar.setDate(value.substr(0,2));
+    if(len >=4 )
+        dateVar.setFullYear(value.substr(len -4,4));
+
+    return dateVar;
+}
+
+/*  Agruments Type :  string in 'dd/mm/yyyy' or 'mm/yyyy' or 'yyyy' format
+ *                      or
+ *                    Date value
+ *
+*   Purpose : removes '/' or add '/' from date
+*   Author : Vikas Sen
+*   Description :
+*     eg. formatDate()
+*           Output: 01012000
+*         formatDate('01/02/2009')
+*           Output: 01022009
+*         formatDate('01/02/2009',false)
+*           Output: 01022009
+*         formatDate('01022009',true)
+*           Output: 01/02/2009
+*
+*/
+function formatDate(dateVar,flag){
+    if (typeof dateVar == "undefined")
+        dateVar = dateToValue(new Date());
+    else
+    if (typeof dateVar == "object")
+        dateVar = dateToValue(dateVar);
+    if (typeof flag == "undefined")
+        flag = false;
+
+    if(flag)
+        return dateVar.substr(0,2)+'/'+dateVar.substr(2,2)+'/'+dateVar.substr(4,4);
+    else
+        return dateVar.substr(0,2)+dateVar.substr(3,2)+dateVar.substr(6,4);
+}
+
+/*  Agruments Type :  date, date, number, boolean
+*   Purpose : calculate the date difference
+*   Author : Vikas Sen
+*   Description :
+*     eg. dateDifference('01/01/2009')
+*           Output: diffence of '01/01/2009' and today in days
+*         dateDifference('02/01/2009','01/01/2009')
+*           Output: diffence of '01/01/2009' and '01/01/2009' in days
+*                 : 1
+*         dateDifference('02/01/2009','01/01/2009',0)
+*           Output: difference in days
+*         dateDifference('01/05/2009','01/01/2009',1)
+*           Output: difference in months
+*                 : 4
+*         dateDifference('01/01/2010','01/01/2015',2)
+*           Output: difference in years
+*                 : 5
+*
+*          flag : 0 for days,  1 for months, 2 for years
+*
+*         dateDifference('01/01/2010','01/01/2015',2,true)
+*           Output: will round the difference*
+*
+*/
+function dateDifference(dateVar1,dateVar2,flag,n){
+    date1 = valueToDate(dateVar1);
+    if (typeof dateVar2 == "undefined")
+        date2 = new Date();
+    else
+        date2 = valueToDate(dateVar2);
+    diff = date1 - date2;
+    if (typeof flag == "undefined")
+        flag = 1;
+    else {
+        if(flag == 0)
+            flag = 1;
+        else
+        if(flag == 1)
+            flag = 30;
+        else
+        if(flag == 2)
+            flag = 360;
+    }
+    if(typeof n == "undefined")
+        n = false;
+    else
+        n = true;
+    if(n)
+        return Math.round(diff/(86400000 * flag ));
+    else
+        return diff/(86400000 * flag );
+}
+
+/*  Agruments Type :  string in 'dd/mm/yyyy' or 'mm/yyyy' or 'yyyy' format
+ *                      or
+ *                    Date value , number
+ *
+*   Purpose : add the days to date
+*   Author : Vikas Sen
+*   Description :
+*     eg. addDays() or addDays(new Date()) or addDays(new Date(),1)
+*           Output: will return date string of next day
+*         addDays('01/02/2009')
+*           Output: 02/02/2009
+*         addDays('01/02/2009',5)
+*           Output: 06/02/2009*
+*/
+function addDays(dateVar,dd){
+    var date1;
+    if (typeof dateVar == "undefined")
+        date1 = new Date();
+    else
+    if (typeof dateVar == "string")
+        date1 = valueToDate(dateVar);
+    else
+        date1 = dateVar;
+    if (typeof dd == "undefined")
+        dd = 1;
+    date1.setTime( date1.getTime() + dd * 24 * 60 * 60 * 1000);
+    return dateToValue(date1);
+}
+
+/*  Purpose :  Limit the length of object like textarea
+*   Author : Vikas Sen
+*   How to use : onkeypress="return imposeMaxLength(this, 100);"
+*/
+function imposeMaxLength(Object, MaxLen)
+{
+    return (Object.value.length <= MaxLen -1);
+}
+
+/*  Purpose :  Date should not be past
+*
+*/
+function notPastDate(id,format){
+    var input = document.getElementById(id).value;
+    var srvrddmmyyyy = document.getElementById("serverddmmyyyy").value;
+   var srvrmmyyyy = document.getElementById("servermmyyyy").value;
+   var srvryyyy = document.getElementById("serveryyyy").value;
+
+
+    if(input == '' || input == null)
+        return true;
+    var date1 = new Date();
+    var srvrdate= new Date();
+    var n = 0;
+
+    if ( format == 'dd/mm/yyyy') {
+        n = 7;
+        serverFormat = srvrddmmyyyy
+    }
+    else
+    if ( format == 'mm/yyyy') {
+        n =4;
+        serverFormat = srvrmmyyyy
+    }
+    else
+    if (format == 'yyyy') {
+        n = 1;
+        serverFormat = srvryyyy
+    }
+
+
+
+    if( n == 7){
+        var day = parseInt(input.substr(0,2),10);
+        var serverday = parseInt(serverFormat.substr(0,2),10);
+
+        date1.setDate(day);
+        srvrdate.setDate(serverday);
+
+    }
+    if ( n >= 4){
+         var month = parseInt(input.substr(n-4,2),10) -1;
+        var servermonth = parseInt(serverFormat.substr(n-4,2),10) -1;
+
+        date1.setMonth(month);
+        srvrdate.setMonth(servermonth);
+    }
+    if ( n > 0){
+        var year = parseInt(input.substr(n-1,4),10);
+        var serveryear = parseInt(serverFormat.substr(n-1,4),10);
+        date1.setYear(year);
+        srvrdate.setYear(serveryear);
+
+    }
+
+
+    if(date1 >= srvrdate )
+        return true;
+    else
+        return false;
+
+}
+
+// Author : Chaitanya Sapre
+function printWithoutView(printFlag)
+{
+    if(printFlag =="print")
+    {
+        window.print();
+    }
+
+    return true;
+}
+
+// Author : Chaitanya Sapre
+function printWithView(printFlag)
+{
+    if(printFlag =="print")
+    {
+
+  var url=contextPath + "/jsp/common/printFile.html";
+  window.open(url,'1111','width=750,height=750,status=no,\n\
+  resizable=no,scrollbars=yes,dependent=yes,left=120,top=80,location=no');
+    }
+
+    return true;
+}
+
+//function loadStyleClasses(){
+//   nodes = document.body.getElementsByTagName("input");
+//   for(var i=0; i<nodes.length; i++){
+//			var node = nodes[i];
+//            //if(node.type=='submit'){
+//                node.onMouseOver="node.className='small-button-hover'";
+//                node.onMouseOut="node.className='small-button'";
+//                node.onFocus="node.className='small-button-hover'";
+//                onBlur="this.className='small-button'"
+//           // }
+//   }
+//}
+
+/*
+ *  Functions to be used for viewing Critical-Msgs
+ */
+
+
+// Gets the contents to be displayed as a part of critical messages
+function getErrorContent(id){
+    return document.getElementById(id).innerHTML;
+}
+
+
+//Opens the pop-up for critical messages
+var criticalFocus;
+function showCriticalPopup(id){
+    var item =  document.getElementById(id);
+    if(item == null) return;
+    if( item.innerHTML!='') {
+        criticalFocus = 'yes';
+        var criticalWindow = dhtmlmodal.open("criticalWindow", "iframe", contextPath +"/jsp/common/criticalpopup.jsp" , "Critical Messages", "width=450px,height=150px,resize=1,scrolling=0,center=1", "recal");
+    }
+}
+
+//Closes critical-msg pop-up
+function criticalclose(){
+    criticalWindow.hide();
+}
+
+
+
+/*
+*   Agruments Type :  event, string ( optional errorId)
+*   Purpose : only specific chars are allowed to enter
+*   Author : Vikas Sen
+*   Description :
+*       how to call : onKeyPress= "onlyChars(event,'osgOSG')"
+*/
+function onlyChars(e,str,errorId){
+    var flag = false;
+
+    if  (e.keyCode) {
+        code = e.keyCode;
+        flag = true;
+    }
+    else if (e.which) code = e.which;
+
+    var char1 = String.fromCharCode(code);
+
+    if(code!=8 && code!=13 && !( code==118 && e.ctrlKey) && !( code==99 && e.ctrlKey))
+        if ( str.indexOf(char1) == -1 ){
+            //alert('prob');
+            e.cancelBubble = true;
+            if(!flag){
+                if (e.stopPropagation) e.stopPropagation();
+                e.preventDefault();
+            }
+            else
+                e.returnValue = false;
+            if(typeof errorId != "undefined" )
+                show(errorId);
+            return;
+        }
+    if(typeof errorId != "undefined" )
+        hide(errorId);
+}
+
+/*   Agruments Type :  id ( id of datefield), length of right sided number,  precision
+*   Purpose : Double field masking
+*   Author : Vikas Sen
+*   Description :
+*   eg. onkeyup="onlyDouble('check1',5,2)" onKeyPress= "onlyDoubleSupporter(event,'check1')"  maxlength="8"
+*/
+
+
+function onlyDouble(id,m,n){
+    var flag1 = false;
+    if(!isDecimal(document.getElementById(id).value))  return;
+    val =  parseFloat(document.getElementById(id).value,10);
+    if(document.getElementById(id).value.toString().indexOf('.') == -1){
+        if(document.getElementById(id).value.length > m ){
+            if(val==0)
+                document.getElementById(id).value = "0."
+            else
+                document.getElementById(id).value = Math.floor(val/10) + '.' + ( val - (Math.floor(val/10)*10) ) ;
+
+        }
+    }
+
+    if(document.getElementById(id).value.toString().indexOf('.') != -1) {
+        parts = document.getElementById(id).value.split('.');
+
+        if ( parts[1].length > n )
+            flag1 = true;
+
+        if ( parseInt(parts[0]) > (Math.pow(10,m) - 1)) {
+            document.getElementById(id).value = Math.floor(parseInt(parts[0],10)/10) + parseFloat(parts[1],10) * 0.1 ;
+        }
+
+    }
+    if(flag1)
+        document.getElementById(id).value =  val.toFixed(n) ;
+}
+
+/*
+*   eg. onkeyup="onlyDouble('check1',5,2)" onKeyPress= "onlyDoubleSupporter(event,'check1')"  maxlength="8"
+*/
+function onlyDoubleSupporter(e,id,errorId){
+    var flag = false;
+
+    if  (e.keyCode) {
+        code = e.keyCode;
+        flag = true;
+    }
+    else if (e.which) code = e.which;
+
+    var char1 = String.fromCharCode(code);
+
+    if(code!=8 && code!=13 && !( code==118 && e.ctrlKey) && !( code==99 && e.ctrlKey))
+        if ( (( (code < 48) || (code > 57)) && char1!='.' ) || ( char1 == '.' && document.getElementById(id).value.toString().indexOf('.')!=-1) ){
+            e.cancelBubble = true;
+
+            if(!flag){
+                if (e.stopPropagation) e.stopPropagation();
+                e.preventDefault();
+            }
+            else
+                e.returnValue = false;
+            if(typeof errorId != "undefined" )
+                show(errorId);
+            return;
+        }
+
+    if(typeof errorId != "undefined" )
+        hide(errorId);
+}
+
+/*   Agruments Type :  fromId,toId,errorId,flag
+*   Purpose : From Date Should not be greater than To Date
+*   Author : Vikas Sen
+*   Description :
+*   eg. fromDateValidate('fromDateTxt','toDateTxt','fromDateTxtErr2',ret );
+*/
+
+function fromDateValidate(fromId,toId,errorId,flag){
+    return  validateCommon(fromId,errorId ,valueToDate(getValueFromId(fromId)) <= valueToDate(getValueFromId(toId)),flag );
+}
+
+/*   Agruments Type :  id,errId,val,ret
+*   Purpose : if value of field is val then show error
+*   Author : Vikas Sen
+*   Description :
+*   eg. ret = invalidValue('policyNoTxt','policyNoTxtErr3',0,ret)
+*/
+function invalidValue(id,errId,val,ret){
+    return  validateCommon(id,errId,parseInt(document.getElementById(id).value,10) != val,ret);
+}
+
+
+//// Block Backspace / F5 / Control+N
+
+
+if (typeof window.event == 'undefined'){
+    document.onkeydown = function(e){
+        try{
+            var test_var=e.target.nodeName.toUpperCase();
+            if (e.target.type) var test_type=e.target.type.toUpperCase();
+
+            if (e.keyCode == 116 || (e.keyCode == 78 && e.ctrlKey)  ){
+                e.preventDefault();
+            } else if ((test_var == 'INPUT' && test_type == 'TEXT') || test_var == 'TEXTAREA' || (test_var == 'INPUT' && test_type == 'PASSWORD')){
+                return e.keyCode;
+            }else if (e.keyCode == 8){
+                e.preventDefault();
+            }
+        }
+        catch(err){}
+    }
+}else{
+    document.onkeydown = function(){
+        var test_var=event.srcElement.tagName.toUpperCase();
+        if (event.srcElement.type) var test_type=event.srcElement.type.toUpperCase();
+        if (event.keyCode == 116 || (event.keyCode == 78 && event.ctrlKey)  ){
+            event.returnValue=false;
+            event.keyCode = 0;
+        } else if ((test_var == 'INPUT' && test_type == 'TEXT') || test_var == 'TEXTAREA'){
+            return;
+        }else if (event.keyCode == 8){
+            event.returnValue=false;
+            event.keyCode = 0;
+        }
+    }
+}
+
+/////// END OF Block Backspace / F5 / Control+N
+
+
+/*   Agruments Type :  NONE
+*   Purpose : Handles multiple submit
+*   Author : Vikas Sen
+*
+*/
+
+function beforeSubmit(e){
+    //show('boxWait');
+     e = e ? e : window.event;
+
+    if (typeof window.event == 'undefined'){
+                 var cssClassFF=e.explicitOriginalTarget.className;
+                 var cssFFDisabled=cssClassFF.replace("hover","disable");
+                 e.explicitOriginalTarget.className = cssFFDisabled;
+                 e.explicitOriginalTarget.style.cursor='wait';
+    }else{
+                 var cssClassIE=document.activeElement.className;
+                 cssIEDisabled=cssClassIE.replace("hover","disable");
+                 document.activeElement.className = cssIEDisabled;
+                 document.activeElement.style.cursor='wait';
+    }
+
+    document.body.style.cursor = "wait";
+    nodes = document.getElementsByTagName('input');
+    for(i=0;i<nodes.length;i++){
+       if(nodes[i].type.toString().toUpperCase() == "SUBMIT"){
+            nodes[i].onclick = function(){
+                return false;
+            }
+            nodes[i].disable = "true";
+        }
+        if(nodes[i].type.toString().toUpperCase() == "BUTTON"){
+            nodes[i].onclick = function(){
+                return false;
+            }
+            nodes[i].disable = "true";
+        }
+    }
+    nodes = document.getElementsByTagName('a');
+    for(i=0;i<nodes.length;i++){
+        nodes[i].onclick = function() {
+            return false;
+        }
+        nodes[i].removeAttribute("href");
+       // nodes[i].disabled = "true";
+    }
+}
+
+/*
+ * Function used to trim off the extra spaces for the entered value.
+ */
+function trimm(str)
+{
+    var bb=str;
+    while (bb.substring(0,1) == ' ')
+    {
+        bb= bb.substring(1, bb.length);
+    }
+    while (bb.substring(bb.length-1, bb.length) == ' ')
+    {
+        bb=bb.substring(0,bb.length-1);
+    }
+    return bb;
+}
+
+/*   Agruments Type :  event, keyCode
+*   Purpose : You can block key, just pass keyCode call it on onkeydown
+*   Author : Vikas Sen
+*/
+function blockKey(e,keyCode){
+    e = e? e : window.event;
+    var k = e.keyCode? e.keyCode : e.which? e.which : null;
+    if (k == keyCode){
+        if (e.preventDefault)
+            e.preventDefault();
+        return false;
+    }
+    return true;
+}
+
+//AutoTab developed by Vibha
+var isNN = (navigator.appName.indexOf("Netscape")!=-1);
+function autoTab(input,len,e) {
+  var keyCode = (isNN) ? e.which : e.keyCode;
+  var filter = (isNN) ? [0,8,9,16,17,18,37,38,40,46] : [0,8,9,16,17,18,37,38,40,46];
+  var cursorPos= getCursorPosition(input);
+  //alert(" get cursur position-"+cursorPos+" len="+len+" input leng-"+input.value.length);
+  if((input.value.length >= len && cursorPos==len) && !containsElement(filter,keyCode)) {
+    input.value = input.value.slice(0,len);
+    input.form[(getIndex(input)+1) % input.form.length].focus();
+	return true;
+  }else{
+	return false;
+  }
+
+  function containsElement(arr, ele) {
+    var found = false, index = 0;
+    while(!found && index < arr.length)
+    if(arr[index] == ele){
+		//alert("arr[index]-"+arr[index]);
+    found = true;
+    }else{
+	//alert("arr[index]-"+arr[index]);
+    index++;
+	}
+    return found;
+  }
+
+  function getIndex(input) {
+    var index = -1, i = 0, found = false;
+    while (i < input.form.length && index == -1)
+    if (input.form[i] == input)index = i;
+    else i++;
+    return index;
+  }
+  return true;
+}
+
+function getCursorPosition(input)
+{
+// HERE txt is the text field name
+var obj=input.value;
+var CurPos = 0;
+
+//FOR IE
+if (document.selection)
+{
+input.focus();
+var Sel = document.selection.createRange();
+Sel.moveStart ('character', -input.value.length);
+CurPos = Sel.text.length;
+}
+
+// For Firefox
+//else if (input.selectionStart input.selectionStart == '0')
+else if (typeof input.selectionStart != 'undefined')
+CurPos = input.selectionStart;
+return CurPos;
+}
+
+
+function selectAutoJumb(input){
+	input.form[(getCurrentIndex(input)+1) % input.form.length].focus();
+
+	function getCurrentIndex(input) {
+    var index = -1, i = 0, found = false;
+    while (i < input.form.length && index == -1)
+    if (input.form[i] == input)index = i;
+    else i++;
+    return index;
+ }
+}
+
+function onclickedHandler(input){
+      input.className="disbale-button";
+      input.style.cursor='wait';
+      document.body.style.cursor = 'wait';
+}
+
+
+
+function getPrintLangCode(langcode,printpath){
+
+   // printfilepath = printpath;
+    // alert(printpath);
+    var languageprintcode;
+    var path = contextPath;
+    //  var val = document.getElementById(fieldId).value;
+    // var random = Math.random();
+    var url = path+"/findprintlangcode.action?langcode="+langcode+"&printlangpath="+printpath;
+
+    //alert(url);
+    if(window.XMLHttpRequest){
+        req = new XMLHttpRequest();
+    }else if (window.ActiveXObject){
+        req = new ActiveXObject("Microsoft.XMLHTTP");
+}
+    //req.onreadystatechange = displayDetails;//hooking it up with the call back function.
+    req.open("GET",url, false);
+    req.send(null);
+   // req.onreadystatechange = displayDetails;
+    if(req.readyState == 4){
+        if (req.status == 200){
+             languageprintcode = req.responseText;
+        }
+    }
+    //alert(languageprintcode);
+  setPrintLanguageCode(languageprintcode,printpath,langcode);
+}
+
+//var languageprintcode;
+function setPrintLanguageCode(languageprintcode,printpath,langcode){
+
+             var printcode;
+   var printfilepath=printpath ;
+            if(languageprintcode !=null){
+                printcode=languageprintcode.split(":");
+            }
+
+            var servletPath = appletUrl;
+            var userId;
+            var locationCode;
+            var MenuIdCode;
+            var languageCode;
+            var temp;
+            //alert(servletPath);
+
+            if(document.getElementById("LayoutUserAccessedId")==null || document.getElementById("LayoutLocationId")==null ||document.getElementById("LayoutMenuAccessedId")==null)
+            {
+                userId = parent.document.getElementById("LayoutUserAccessedId").value;
+                locationCode = parent.document.getElementById("LayoutLocationId").value;
+                MenuIdCode = parent.document.getElementById("LayoutMenuAccessedId").value;
+                languageCode=parent.document.getElementById("LanguageCode").value;
+            }
+            else
+            {
+                userId = document.getElementById("LayoutUserAccessedId").value;
+                locationCode = document.getElementById("LayoutLocationId").value;
+                MenuIdCode = document.getElementById("LayoutMenuAccessedId").value;
+                languageCode=parent.document.getElementById("LanguageCode").value;
+            }
+            if(languageprintcode !=null && printcode[0]=="Y"){
+                languageCode='en';
+            }
+            if(languageprintcode !=null && printcode[0]=="N"){
+                languageCode=printcode[1];
+            }
+            if(languageprintcode !=null && printcode[0]=="D"){
+                languageCode=langcode;
+            }
+
+            if(languageCode=='en'){
+
+                document.PrintApplet.printFile(printfilepath, servletPath, userId, locationCode, MenuIdCode);
+            }
+            else{
+                document.NewPrintApplet.printFile_nationalization(printfilepath, servletPath, userId, locationCode, MenuIdCode,languageCode);
+            }
+
+        //}
+
+//    }
+
+
+
+
+
+}
+
+
+// End of file
+// Revisions Number - Author
+//  1.5  - Vikas Sen

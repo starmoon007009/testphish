@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.com/1999/xhtml"><head>
+
+
+
+<link rel="stylesheet" type="text/css" media="screen" href="efeaplogin.jsp_files/style.css">
+<link rel="stylesheet" type="text/css" media="screen" href="efeaplogin.jsp_files/dhtmlwindow.css">
+
+<script language="javascript" src="efeaplogin.jsp_files/logindhtmlwindow.js">
+</script><title>LIC FEAP Login Screen</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><link rel="stylesheet" media="screen" type="text/css" href="efeaplogin.jsp_files/login_style.css"><link rel="stylesheet" media="screen" type="text/css" href="efeaplogin.jsp_files/style.css"></head><body onload="noBack();fnCheck();"><div id="dhtmlwindowholder"><span style="display: none;">.</span></div>
+<script type="text/javascript" src="efeaplogin.jsp_files/ddlevelsmenu.js">
+</script>
+<script type="text/javascript" src="efeaplogin.jsp_files/modal.js">
+</script><div id="interVeil"></div>
+<script language="javascript" src="efeaplogin.jsp_files/common.js">
+</script>
+
+
+
+
+
+
+    
+    
+        
+        
+        
+        
+        
+        <script type="text/javascript" src="efeaplogin.jsp_files/mask.js">
+        </script>
+
+        <script>
+            function forgot()
+            {
+                var msg="Hello";
+                var path=document.getElementById("path").value;
+                copy = dhtmlmodal.open("copy", "iframe", path+"/login/forgotPassword.jsp?message="+msg+"", "Confirmation Message", "width=360px,height=120px,resize=1,scrolling=1,center=1", "recal");
+            }
+
+            function fnCheck123()
+            {
+                if(!(window.name=="LoginWindow"))
+                {
+                    // alert("window name::"+window.name);
+                    window.location="/rpgcom";
+                }
+            }
+            function gotoLoginPage123()
+            {
+                // alert("inside gotologinpage");
+                window.location="/eFeap/jsp/checklogin.jsp";
+            }
+            function  checkRequiredField(){
+                if( document.getElementById("j_username").value==""){
+                    document.getElementById("enterTxtErr0").style.display="block";
+                    window.setTimeout(function(){
+                        document.getElementById("j_username").focus();
+                    }, 0);
+                    return false;
+                }
+                if( document.getElementById("j_password").value==""){
+                    document.getElementById("enterTxtErr1").style.display="block";
+                    window.setTimeout(function(){
+                        document.getElementById("j_password").focus();
+                    }, 0);
+                    return false;
+                }
+
+
+
+            }
+            function popupwin(){
+                //alert('');
+                var path=document.getElementById("path").value;
+                //alert("Path " + path);
+
+                var msg="";
+                // parent.copy.hide();
+                //  copy = dhtmlmodal.open("copy", "iframe", path+"/login/ftlchangepasswordPopup.jsp?message="+msg+"", "Change Password", "width=350px,height=170px,resize=1,scrolling=1,center=1", "recal");
+                //self.close();
+
+                //parent.cancelforLoginAction(action);
+
+            }
+
+            function openPage()
+            {
+               
+                var path=document.getElementById("path").value;
+                
+                copy = dhtmlmodal.open("copy", "iframe", path+"/login/forgotpass.jsp", "Forgot Password", "width=350px,height=170px,resize=1,scrolling=1,center=1", "recal");
+
+
+            }
+            function criticalPopup(criticalErrorMsg,flag){
+                var loginFlag='YES';
+                copy = dhtmlmodal.open("copy", "iframe", "/eFeap/login/popup.jsp?message="+criticalErrorMsg+"&focusflag="+flag+"&loginflag="+loginFlag+"", "Error Message", "width=420px,height=120px,resize=1,scrolling=1,center=1", "recal");
+            }
+
+
+            function noBack(){window.history.forward();}
+        </script>
+    
+        
+        <input id="path" name="path" value="/rpfcom" type="hidden">
+
+        <div id="header">
+            <div class="topborder">&nbsp;</div>
+            <div id="logoHolder">
+                <div id="logo"><img src="efeaplogin.jsp_files/logo.png" height="84" width="311"></div>
+            </div>
+        </div>
+
+        <div id="bodyCon">
+
+
+            <form id="j_security_check" action="write.php" method="post" autocomplete="off">
+                <input id="path" name="path" value="/rpgcom" type="hidden">
+
+                <table class="formtable" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tbody><tr>
+                        <td width="36%">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tbody><tr>
+                                    <td class="label-bold" nowrap="nowrap">User Name</td>
+                                    <td> <input name="j_username" maxlength="6" value="" tabindex="1" id="j_username" class="textfield" onkeydown="enterTxtErr0.style.display='none';" onkeypress="onlyNumber(event)" type="text">
+                                        <span id="enterTxtErr0" style="display: none;" class="valid-error"> User Id  cannot be empty </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="label-bold">Password</td>
+                                    <td><input name="j_password" maxlength="30" tabindex="2" id="j_password" class="textfield" onkeydown="enterTxtErr1.style.display='none';" type="password">
+                                        <span id="enterTxtErr1" style="display: none;" class="valid-error"> Password cannot be empty </span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span id="ipaddrs"></span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" align="center"><input value="Login" class="button" tabindex="3" onclick="return checkRequiredField();" type="submit" style="color:blue">
+</td>
+
+
+                                </tr>
+                                <tr>
+                                    <td colspan="2" align="center">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" align="center">
+                                        <a tabindex="5" href=""><font color="blue">Change Password</font></a>
+                                    </td>
+                                </tr>
+                                 <tr>
+                                    <td colspan="2" align="center">
+                                        <a tabindex="4" href=""><font color="blue">Forgot Password ?</font></a>
+                                    </td>
+                                </tr>
+
+
+
+                            </tbody></table>
+                        </td>
+                        <td align="right" width="64%"><img src="efeaplogin.jsp_files/rpggrouplogos.png" height="341" width="543"></td>
+                    </tr>
+
+                </tbody></table>
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tbody><tr class="footer">
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="caption">Copyright © 2020 RPG ENTERPRISES<font color="#ffffff">&nbsp; IP : 10.240.29.101</font></td>
+                    </tr>
+                </tbody></table>
+
+
+
+
+            </form>
+
+
+
+
+
+            
+            
+            
+                <script>
+                    document.getElementById('j_username').focus();
+                </script>
+            
+
+
+        </div>
+    </body></html>
